@@ -8,4 +8,9 @@ require './vendor/autoload.php';
 //$recorder = new \core\LiverRecorder();
 //$recorder->run($roomId);
 
-\core\Process::fork();
+$log = '/var/log/bili_observer.log';
+$master= new \core\Process();
+$master->daemon();
+while(true){
+    @file_put_contents($log,'heartbeat',FILE_APPEND);
+}
