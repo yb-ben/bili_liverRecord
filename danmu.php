@@ -21,12 +21,8 @@ go(function(){
     $client->get("room/v1/Danmu/getConf?room_id={$roomId}&platform=pc&player=web");
 
     print_r($client->statusCode);
+    print_r($client->body);
 
-    if(200 === $client->statusCode){
-
-        $body = $client->body;
-        print_r($body);
-    }
 
 
 });
