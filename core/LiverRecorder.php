@@ -3,6 +3,7 @@
 namespace core;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
 
 class LiverRecorder
@@ -119,7 +120,7 @@ class LiverRecorder
                 'Host' => $host,
                 'Origin' => 'https://live.bilibili.com',
                 'Reference' => 'https://live.bilibili.com',
-                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36'
+                'User-Agent' => 'BiliRecorder'
             ],
             'verify' => true,
             'stream' => true,
@@ -137,12 +138,34 @@ class LiverRecorder
      */
     public function record(ResponseInterface $response){
         $f = fopen($this->getSaveFileName(),'w+');
+
         $stream = \GuzzleHttp\Psr7\stream_for($f);
         $body = $response->getBody();
-        while (!$body->eof()) {
-            $stream->write($body->read($this->writeBuffer));
+
+        try{
+            $refObj = new \ReflectionObject($body);
+            $refProp = $refObj->getProperty('stream');
+            $refProp->setAccessible(true);
+            $readStream = $refProp->getValue($body);
+            var_dump($readStream);
+            if(is_resource($readStream)){
+                stream_set_timeout($readStream,5);
+            }
+        }catch (\ReflectionException $e){
+            $body->close();
+            $stream->close();
+            die($e->getLine().' '.$e->getMessage());
         }
-        fclose($f);
+
+      //  $info = stream_get_meta_data($readStream);
+        while ((!$body->eof())) {
+            $data = $body->read($this->writeBuffer);
+          //  $info = stream_get_meta_data($readStream);
+            $stream->write($data);
+        }
+        $this->fireLiveFinished();
+        $body->close();
+        $stream->close();
     }
 
 
@@ -152,19 +175,28 @@ class LiverRecorder
         print_r($ret);
         if($ret['code'] !== 0){
             $this->fireErrorResponse($ret);
-            return;
+           // return;
         }
         if($ret['data']['live_status'] !== 1){
             //未开播
             $this->fireLiveOffline($ret);
-            return;
+           // return;
         }
         $ret = $this->getPlayUrl(4);
         print_r($ret);
         if($ret['code'] !== 0){
             $this->fireErrorResponse($ret);
         }
-        $ret = $this->getStreamData($ret['data']['durl'][0]['url']);
+        try{
+            $ret = $this->getStreamData($ret['data']['durl'][0]['url']);
+        }catch (RequestException $exception){
+            $resp = $exception->getResponse();
+
+            print_r($resp->getStatusCode());
+            print_r($resp->getHeaders());
+            print_r(           $resp->getBody());
+            exit;
+        }
         $this->record($ret);
     }
 
@@ -175,5 +207,9 @@ class LiverRecorder
 
     protected function fireErrorResponse($response){
         echo 'error response';
+    }
+
+    protected function fireLiveFinished(){
+        echo '主播已下播';
     }
 }

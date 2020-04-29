@@ -7,6 +7,8 @@ namespace core;
 class Process
 {
 
+    protected $children = [];
+
     public function daemon()
     {
         $pid = pcntl_fork();
@@ -36,5 +38,22 @@ class Process
         if(defined('STDERR')){
             fclose(STDERR);
         }
+    }
+
+
+    public function fork(){
+        $pid = pcntl_fork();
+        if($pid < 0){
+            //失败
+        }elseif($pid>0){
+            //父进程
+            $this->children[$pid] = $pid;
+        }else{
+            $this->dispatch(new Task());
+        }
+    }
+
+    protected function dispatch(Task $task){
+        $task->run();
     }
 }
