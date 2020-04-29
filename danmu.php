@@ -9,7 +9,7 @@
 //$payload = substr($msg,16);
 //var_dump(json_decode($payload,JSON_UNESCAPED_UNICODE));
 
-Co\run(function(){
+go(function(){
     $roomId = '17961';
     //$url = "https://api.live.bilibili.com/room/v1/Danmu/getConf?room_id={$roomId}&platform=pc&player=web";
     $client = new Swoole\Coroutine\Http\Client('api.live.bilibili.com',443,true);
