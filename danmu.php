@@ -15,7 +15,8 @@ go(function(){
     $client = new Swoole\Coroutine\Http2\Client('api.live.bilibili.com',443,true);
     $client->connect();
 
-    $req = Swoole\Coroutine\Http2\Request();
+
+    $req = Swoole\Http2\Request();
     $req->method = 'GET';
     $req->path = "room/v1/Danmu/getConf?room_id={$roomId}&platform=pc&player=web";
     $req->headers = [
