@@ -12,16 +12,21 @@
 go(function(){
     $roomId = '17961';
     //$url = "https://api.live.bilibili.com/room/v1/Danmu/getConf?room_id={$roomId}&platform=pc&player=web";
-    $client = new Swoole\Coroutine\Http\Client('api.live.bilibili.com',443,true);
-    $client->setHeaders([
+    $client = new Swoole\Coroutine\Http2\Client('api.live.bilibili.com',443,true);
+    $client->connect();
+
+    $req = Swoole\Coroutine\Http2\Request();
+    $req->method = 'GET';
+    $req->path = "room/v1/Danmu/getConf?room_id={$roomId}&platform=pc&player=web";
+    $req->headers = [
         'Host' => 'api.live.bilibili.com' ,
         'Origin' => 'https://live.bilibili.com',
-        'Reference' => 'https://live.bilibili.com',
-    ]);
-    $client->get("room/v1/Danmu/getConf?room_id={$roomId}&platform=pc&player=web");
+        'Reference' => 'https://live.bilibili.com/'.$roomId,
+    ];
+    $client->send($req);
+    $response = $client->recv();
 
-    print_r($client->statusCode);
-    print_r($client->body);
+    print_r($response->data);
 
 
 
