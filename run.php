@@ -18,19 +18,23 @@ $stream->setFormatter(new \Monolog\Formatter\LineFormatter(null,'Y-m-d H:i:s'));
 $logger->pushHandler($stream);
 
 
+$recorder = new LiverRecorder();
+$recorder->setLogger($logger);
+
+if(isset($argv[1]) && $argv[1] === 'test'){
+
+    $recorder->test($argv[2]);
+    exit;
+}
+
 if(!isset($argv[1])){
     $logger->debug('please input the room id');
     exit;
 }
 $roomId = $argv[1];
 
-
-$recorder = new LiverRecorder();
-$recorder->setLogger($logger);
-
 //while(true){
 //
 //    $recorder->run($roomId);
 //    sleep(60);
 //}
-$recorder->test();
