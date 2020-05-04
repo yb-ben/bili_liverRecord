@@ -8,10 +8,5 @@ class Task
 {
 
 
-
-    public function run(){
-        while(true){
-            sleep(60);
-        }
-    }
+    public function run(){}
 }

@@ -1,3 +1,6 @@
 /vendor
 .idea
 client_log
+*.flv
+/storage
+*.log

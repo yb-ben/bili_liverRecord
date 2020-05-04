@@ -9,7 +9,7 @@ class Process
 
     protected $children = [];
 
-    public function daemon()
+    public static function daemon()
     {
         $pid = pcntl_fork();
         if($pid < 0 ){
@@ -27,7 +27,7 @@ class Process
         }elseif ($pid>0){
             exit;
         }
-        chdir('/');
+        chdir('/usr/local/bili_liverRecord');
         umask(0);
         if(defined('STDIN')){
             fclose(STDIN);
@@ -38,6 +38,8 @@ class Process
         if(defined('STDERR')){
             fclose(STDERR);
         }
+        return $pid;
+
     }
 
 
@@ -45,15 +47,20 @@ class Process
         $pid = pcntl_fork();
         if($pid < 0){
             //失败
+            throw new \Exception('error:'. pcntl_get_last_error().PHP_EOL);
         }elseif($pid>0){
             //父进程
             $this->children[$pid] = $pid;
         }else{
-            $this->dispatch(new Task());
+            //子进程
         }
+        return $pid;
     }
 
-    protected function dispatch(Task $task){
-        $task->run();
+    public function dispatch($pid,Task $task){
+        if(!isset($this->children[$pid])){
+            throw new \Exception('pid not found');
+        }
+        $this->children[$pid] = $task;
     }
 }

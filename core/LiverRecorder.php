@@ -4,7 +4,9 @@ namespace core;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+use Monolog\Logger;
 use Psr\Http\Message\ResponseInterface;
+use function GuzzleHttp\Psr7\stream_for;
 
 class LiverRecorder
 {
@@ -19,19 +21,18 @@ class LiverRecorder
 
     protected $at = '';
 
+    protected $logger;
+
     public function __construct()
     {
-        $this->client = new \GuzzleHttp\Client();;
+        $this->client = new Client();;
+    }
+
+    public function setLogger(Logger $logger){
+        $this->logger = $logger;
     }
 
 
-    public function cron($time){
-
-        while($this->at !== date('H')){
-            sleep(60);
-        }
-        $this->run($this->roomId);
-    }
 
     public function setRoomId(string $roomId){
         $this->roomId = $roomId;
@@ -139,28 +140,11 @@ class LiverRecorder
     public function record(ResponseInterface $response){
         $f = fopen($this->getSaveFileName(),'w+');
 
-        $stream = \GuzzleHttp\Psr7\stream_for($f);
+        $stream = stream_for($f);
         $body = $response->getBody();
 
-        try{
-            $refObj = new \ReflectionObject($body);
-            $refProp = $refObj->getProperty('stream');
-            $refProp->setAccessible(true);
-            $readStream = $refProp->getValue($body);
-            var_dump($readStream);
-            if(is_resource($readStream)){
-                stream_set_timeout($readStream,5);
-            }
-        }catch (\ReflectionException $e){
-            $body->close();
-            $stream->close();
-            die($e->getLine().' '.$e->getMessage());
-        }
-
-      //  $info = stream_get_meta_data($readStream);
         while ((!$body->eof())) {
             $data = $body->read($this->writeBuffer);
-          //  $info = stream_get_meta_data($readStream);
             $stream->write($data);
         }
         $this->fireLiveFinished();
@@ -172,44 +156,43 @@ class LiverRecorder
     public function run($id){
 
         $ret = $this->setRoomId($id)->getRoomInfo();
-        print_r($ret);
+
+        $this->logger->debug('[RoomInfo]',$ret);
+
         if($ret['code'] !== 0){
-            $this->fireErrorResponse($ret);
-           // return;
+            return $this->fireErrorResponse($ret);
         }
+
         if($ret['data']['live_status'] !== 1){
             //未开播
-            $this->fireLiveOffline($ret);
-           // return;
+            return $this->fireLiveOffline($ret);
         }
         $ret = $this->getPlayUrl(4);
-        print_r($ret);
+
+        $this->logger->debug('[LiveUrl]',$ret);
+
         if($ret['code'] !== 0){
-            $this->fireErrorResponse($ret);
+           return $this->fireErrorResponse($ret);
         }
         try{
             $ret = $this->getStreamData($ret['data']['durl'][0]['url']);
+            $this->record($ret);
         }catch (RequestException $exception){
             $resp = $exception->getResponse();
-
-            print_r($resp->getStatusCode());
-            print_r($resp->getHeaders());
-            print_r(           $resp->getBody());
-            exit;
+            $this->logger->debug($resp->getStatusCode(),$resp->getHeaders());
         }
-        $this->record($ret);
     }
 
 
-    protected function fireLiveOffline($response){
-        echo '主播未开播';
+    protected function fireLiveOffline($response = []){
+        $this->logger->debug('[error response][offline]',$response);
     }
 
-    protected function fireErrorResponse($response){
-        echo 'error response';
+    protected function fireErrorResponse($response=[] ){
+        $this->logger->debug('[error response]',$response);
     }
 
-    protected function fireLiveFinished(){
-        echo '主播已下播';
+    protected function fireLiveFinished($response = []){
+        $this->logger->debug('[finished]',$response);
     }
 }
