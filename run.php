@@ -11,7 +11,10 @@ require './vendor/autoload.php';
 $pid = \core\Process::daemon();
 
 
-$roomId = '21908196';
+if(!isset($argv[1])){
+    die('please input the liver room id');
+}
+$roomId = $argv[1];
 
 $loggerConfig = require './logger.php';
 $path = $loggerConfig['channels'][$loggerConfig['default']]['path'];
