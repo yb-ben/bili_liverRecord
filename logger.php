@@ -6,7 +6,7 @@ return [
 
     'channels' => [
         'default' => [
-            'path' => './liver.log',
+            'path' => 'liver.log',
         ]
     ]
 ];
