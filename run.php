@@ -28,8 +28,9 @@ $roomId = $argv[1];
 $recorder = new LiverRecorder();
 $recorder->setLogger($logger);
 
-while(true){
-
-    $recorder->run($roomId);
-    sleep(60);
-}
+//while(true){
+//
+//    $recorder->run($roomId);
+//    sleep(60);
+//}
+$recorder->test();

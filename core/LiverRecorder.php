@@ -130,6 +130,13 @@ class LiverRecorder
     }
 
 
+    public function test(){
+
+        $url = 'https://js.live-play.acgvideo.com/live-js/981500/live_403921378_28899963.flv?wsSecret=ace8adcfd9f245f95d4381c72cd413d0&wsTime=1588566262&trid=1a62616fd64545758eb24667a36cc2a8&pt=web&oi=2028384599&order=0&sig=no';
+        $ret = $this->getStreamData($url);
+        $this->record($ret);
+    }
+
     public function getSaveFileName(){
         return $this->path . $this->roomId .'_'.time().'.flv';
     }
