@@ -2,9 +2,12 @@
 
 set_time_limit(0);
 require './vendor/autoload.php';
+\Swoole\Process::daemon();
 
-$client = new \GuzzleHttp\Client(['cookies' => true]);
-    $jar = new \GuzzleHttp\Cookie\CookieJar();
+$jar = new \GuzzleHttp\Cookie\CookieJar();
+$client = new \GuzzleHttp\Client(['cookies'=>$jar]);
+
+
     $uri = 'https://bbs.saraba1st.com/2b/member.php?mod=logging&action=login&loginsubmit=yes&infloat=yes&lssubmit=yes&inajax=1';
     $response = $client->request(
         'POST',
@@ -24,7 +27,6 @@ $client = new \GuzzleHttp\Client(['cookies' => true]);
                 ,'Content-Type'=>'application/x-www-form-urlencoded'
             ],
             'verify' => true,
-            'cookies' => $jar,
             'form_params'=>[
                 'fastloginfield' => 'username',
                 'username' => 'nocontent',
@@ -39,11 +41,14 @@ $client = new \GuzzleHttp\Client(['cookies' => true]);
     $s = $response->getBody();
 
     if (false === mb_strpos($s->getContents(),'window.location.href')) {
-        echo 'false';
+        exit;
     }else{
         while(true){
 
-            $response = $client->request('GET', 'https://www.saraba1st.com/2b/forum-151-1.html', [
+            $response = $client->request(
+                'GET',
+                'https://bbs.saraba1st.com/2b/forum-151-1.html',
+                [
                 'headers' => [
                     'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
                     'Accept-Encoding' => 'gzip, deflate, br',
@@ -55,9 +60,9 @@ $client = new \GuzzleHttp\Client(['cookies' => true]);
                     ,'Host'=>'bbs.saraba1st.com'
                 ],
                 'verify' => true,
-                'cookies' => $jar,
-            ]);
-            //  print_r($response->getBody()->getContents());
+             ]);
+             // print_r($response->getBody()->getContents());
+
             sleep(60);
         }
     }
