@@ -23,7 +23,7 @@ $recorder->setLogger($logger);
 
 if(isset($argv[1]) && $argv[1] === 'test'){
 
-    $recorder->test($argv[2]);
+    $recorder->test('https://js.live-play.acgvideo.com/live-js/781742/live_389862071_60782122_1500.flv?wsSecret=b3c72a17e2c96130fd1bdeb73c164073&wsTime=1588569184&trid=d9673e0f839e424a9b30978bdbcbb7b7&pt=web&oi=2028384599&order=0&sig=no');
     exit;
 }
 
