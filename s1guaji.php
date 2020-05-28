@@ -5,9 +5,9 @@ require './vendor/autoload.php';
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
-//use Swoole\Process;
+use Swoole\Process;
 
-//Process::daemon();
+Process::daemon();
 
 $jar = new CookieJar();
 $client = new Client(['cookies' => $jar]);
