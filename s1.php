@@ -1,6 +1,7 @@
 <?php
-set_time_limit(0);
 require './vendor/autoload.php';
+
+set_time_limit(0);
 
 $client = new \GuzzleHttp\Client();
 for($page= 140;$page<238;){
