@@ -33,6 +33,10 @@ class LiverRecorder
         $this->logger = $logger;
     }
 
+    public function getLogger():Logger
+    {
+        return $this->logger;
+    }
 
 
     public function setRoomId(string $roomId){
@@ -74,8 +78,6 @@ class LiverRecorder
         );
 
         $ret =  json_decode($response->getBody(), JSON_UNESCAPED_UNICODE);
-
-        print_r($ret);
         return $ret;
     }
 
@@ -108,7 +110,6 @@ class LiverRecorder
         );
 
         $ret =  json_decode($response->getBody(), JSON_UNESCAPED_UNICODE);
-        print_r($ret);
         return $ret;
     }
 
@@ -169,7 +170,7 @@ class LiverRecorder
 
         $ret = $this->setRoomId($id)->getRoomInfo();
 
-        $this->logger->debug('[RoomInfo]',$ret);
+        $this->getLogger()->debug('[RoomInfo]',$ret);
 
         if($ret['code'] !== 0){
              $this->fireErrorResponse($ret);
@@ -183,7 +184,7 @@ class LiverRecorder
         }
         $ret = $this->getPlayUrl(2);
 
-        $this->logger->debug('[LiveUrl]',$ret);
+        $this->getLogger()->debug('[LiveUrl]',$ret);
 
         if($ret['code'] !== 0){
             $this->fireErrorResponse($ret);
@@ -192,6 +193,7 @@ class LiverRecorder
         foreach ($ret['data']['durl'] as $item) {
             try{
                 $ret = $this->getStreamData($item['url']);
+                $this->getLogger()->debug('headers:',$ret->getHeaders());
                 $this->record($ret);
                 return true;
             }catch (RequestException $exception){
@@ -213,5 +215,11 @@ class LiverRecorder
 
     protected function fireLiveFinished($response = []){
         $this->logger->debug('[finished]',$response);
+    }
+
+
+    public function __destruct()
+    {
+        $this->getLogger()->error('Recorder is exiting');
     }
 }
