@@ -6,9 +6,7 @@ use Monolog\Logger;
 error_reporting(E_ALL);
 require './vendor/autoload.php';
 date_default_timezone_set('Asia/Shanghai');
-if(isset($argv[2]) && $argv[2] === 'daemon'){
-    $pid = \core\Process::daemon();
-}
+
 $loggerConfig = require './logger.php';
 $path = $loggerConfig['channels'][$loggerConfig['default']]['path'];
 $logger =new Logger($path);
