@@ -40,7 +40,7 @@ $client = new \GuzzleHttp\Client(['cookies'=>$jar]);
 
     $s = $response->getBody();
 
-    if (false === mb_strpos($s->getContents(),'window.location.href')) {
+    if ($response->getStatusCode() !== 200 || false === mb_strpos($s->getContents(),'window.location.href')) {
         exit;
     }else{
         while(true){
@@ -62,7 +62,9 @@ $client = new \GuzzleHttp\Client(['cookies'=>$jar]);
                 'verify' => true,
              ]);
              // print_r($response->getBody()->getContents());
-
+            if ($response->getStatusCode() !== 200) {
+                exit;
+            }
             sleep(60);
         }
     }

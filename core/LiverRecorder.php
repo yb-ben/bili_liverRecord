@@ -4,6 +4,7 @@ namespace core;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Psr7\Utils;
 use Monolog\Logger;
 use Psr\Http\Message\ResponseInterface;
 use function GuzzleHttp\Psr7\stream_for;
@@ -72,7 +73,10 @@ class LiverRecorder
             ]
         );
 
-        return json_decode($response->getBody(), JSON_UNESCAPED_UNICODE);
+        $ret =  json_decode($response->getBody(), JSON_UNESCAPED_UNICODE);
+
+        print_r($ret);
+        return $ret;
     }
 
 
@@ -103,7 +107,9 @@ class LiverRecorder
             ]
         );
 
-        return json_decode($response->getBody(), JSON_UNESCAPED_UNICODE);
+        $ret =  json_decode($response->getBody(), JSON_UNESCAPED_UNICODE);
+        print_r($ret);
+        return $ret;
     }
 
 
@@ -146,7 +152,7 @@ class LiverRecorder
     public function record(ResponseInterface $response){
         $f = fopen($this->getSaveFileName(),'w+');
 
-        $stream = stream_for($f);
+        $stream = Utils::streamFor($f);
         $body = $response->getBody();
 
         while ((!$body->eof())) {
@@ -166,27 +172,34 @@ class LiverRecorder
         $this->logger->debug('[RoomInfo]',$ret);
 
         if($ret['code'] !== 0){
-            return $this->fireErrorResponse($ret);
+             $this->fireErrorResponse($ret);
+            return $ret;
         }
 
         if($ret['data']['live_status'] !== 1){
             //未开播
-            return $this->fireLiveOffline($ret);
+             $this->fireLiveOffline($ret);
+            return $ret;
         }
-        $ret = $this->getPlayUrl(4);
+        $ret = $this->getPlayUrl(2);
 
         $this->logger->debug('[LiveUrl]',$ret);
 
         if($ret['code'] !== 0){
-           return $this->fireErrorResponse($ret);
+            $this->fireErrorResponse($ret);
+            return $ret;
         }
-        try{
-            $ret = $this->getStreamData($ret['data']['durl'][0]['url']);
-            $this->record($ret);
-        }catch (RequestException $exception){
-            $resp = $exception->getResponse();
-            $this->logger->debug($resp->getStatusCode(),$resp->getHeaders());
+        foreach ($ret['data']['durl'] as $item) {
+            try{
+                $ret = $this->getStreamData($item['url']);
+                $this->record($ret);
+                return true;
+            }catch (RequestException $exception){
+                $resp = $exception->getResponse();
+                $this->logger->debug($resp->getStatusCode(),$resp->getHeaders());
+            }
         }
+
     }
 
 

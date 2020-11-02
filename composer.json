@@ -2,7 +2,8 @@
     "require": {
         "guzzlehttp/guzzle": "^6.5",
         "swiftmailer/swiftmailer": "^6.0",
-        "monolog/monolog": "^2.0"
+        "monolog/monolog": "^2.0",
+        "ext-json": "*"
     },
     "autoload": {
         "psr-4": {
