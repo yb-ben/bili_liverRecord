@@ -11,10 +11,9 @@ error_reporting(E_ALL);
 date_default_timezone_set('Asia/Shanghai');
 
 isset($argv[1]) || die('please input the room id');
-
+isset($argv[2]) && $argv[2] === '--daemon' && Process::daemon(true);
 $roomId = $argv[1];
 
-Process::daemon(true);
 
 
 
