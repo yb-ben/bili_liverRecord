@@ -6,7 +6,7 @@ return [
 
     'channels' => [
         'default' => [
-            'path' => 'logs/',
+            'path' => '',
         ]
     ]
 ];
