@@ -4,3 +4,4 @@ client_log
 *.flv
 /storage
 *.log
+/logs

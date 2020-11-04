@@ -2,32 +2,46 @@
 use core\LiverRecorder;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+use Swoole\Process;
+
+require './vendor/autoload.php';
+define('ROOT_PATH', __DIR__ . DIRECTORY_SEPARATOR);
+
+$logConfig = require 'config/log.php';
+
 
 error_reporting(E_ALL);
-require './vendor/autoload.php';
 date_default_timezone_set('Asia/Shanghai');
 
-$loggerConfig = require './logger.php';
-$path = $loggerConfig['channels'][$loggerConfig['default']]['path'];
-$logger =new Logger($path);
+
+
+isset($argv[1]) || die('please input the room id');
+
+$roomId = $argv[1];
+
+
+$channelConfig = $logConfig['channels'][$logConfig['default']];
+$path = ROOT_PATH. $channelConfig['path'].$roomId;
+$logger =new Logger($logConfig['default']);
 $stream = new StreamHandler($path);
 $stream->setFormatter(new \Monolog\Formatter\LineFormatter(null,'Y-m-d H:i:s'));
 $logger->pushHandler($stream);
-
-
 $recorder = new LiverRecorder();
 $recorder->setLogger($logger);
 
-
-if(!isset($argv[1])){
-    $logger->debug('please input the room id');
-    exit;
-}
-$roomId = $argv[1];
-
 while(true){
+    $process = new Process(function ()use($recorder,$roomId,$logger) {
+        $logger->info('My pid:'.getmypid());
+        while(true){
+            $recorder->run($roomId);
+            $logger->debug('finish a circle');
+            sleep(60);
+        }
+    });
 
-    $recorder->run($roomId);
-    $logger->debug('finish a circle');
-    sleep(60);
+    $process->start();
+    $status = Process::wait(true);
+    $logger->info("Recycled #{$status['pid']}, code={$status['code']}, signal={$status['signal']}" . PHP_EOL);
 }
+
+

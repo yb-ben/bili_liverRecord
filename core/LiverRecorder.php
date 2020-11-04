@@ -144,7 +144,7 @@ class LiverRecorder
     }
 
     public function getSaveFileName(){
-        return $this->path . $this->roomId .'_'.time().'.flv';
+        return $this->path . $this->roomId .'_'.date('YmdHis').'.flv';
     }
 
     /**
@@ -159,10 +159,11 @@ class LiverRecorder
         while ((!$body->eof())) {
             $data = $body->read($this->writeBuffer);
             $stream->write($data);
+            usleep(100);
         }
-        $this->fireLiveFinished();
         $body->close();
         $stream->close();
+        $this->fireLiveFinished();
     }
 
 
@@ -193,20 +194,32 @@ class LiverRecorder
         foreach ($ret['data']['durl'] as $item) {
             try{
                 $ret = $this->getStreamData($item['url']);
-                $this->getLogger()->debug('headers:',$ret->getHeaders());
+                $this->getLogger()->debug(
+                    '[live url]',
+                    [
+                    'code'=>$ret->getStatusCode(),
+                    'headers' => $ret->getHeaders(),
+                    'body'=>$ret->getBody()->getContents()
+                    ]
+                );
                 $this->record($ret);
-                return true;
+
             }catch (RequestException $exception){
-                $resp = $exception->getResponse();
-                $this->logger->debug($resp->getStatusCode(),$resp->getHeaders());
+                $ret = $exception->getResponse();
+                $this->logger->debug('[http error]',
+                    [
+                        'code'=>$ret->getStatusCode(),
+                        'headers' => $ret->getHeaders(),
+                        'body'=>$ret->getBody()->getContents()
+                    ]);
             }
         }
-
+        return true;
     }
 
 
     protected function fireLiveOffline($response = []){
-        $this->logger->debug('[error response][offline]',$response);
+        $this->logger->debug('[error response][offline]为开播');
     }
 
     protected function fireErrorResponse($response=[] ){
