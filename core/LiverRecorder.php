@@ -206,7 +206,6 @@ class LiverRecorder
                     [
                         'code'=>$ret->getStatusCode(),
                         'headers' => $ret->getHeaders(),
-                        'body'=>$ret->getBody()->getContents()
                     ]);
             }
         }
