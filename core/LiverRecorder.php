@@ -196,11 +196,7 @@ class LiverRecorder
                 $ret = $this->getStreamData($item['url']);
                 $this->getLogger()->debug(
                     '[live url]',
-                    [
-                    'code'=>$ret->getStatusCode(),
-                    'headers' => $ret->getHeaders(),
-                    'body'=>$ret->getBody()->getContents()
-                    ]
+                    ['headers' => $ret->getHeaders(),]
                 );
                 $this->record($ret);
 
@@ -219,7 +215,7 @@ class LiverRecorder
 
 
     protected function fireLiveOffline($response = []){
-        $this->logger->debug('[error response][offline]为开播');
+        $this->logger->debug('[error response][offline]未开播');
     }
 
     protected function fireErrorResponse($response=[] ){
