@@ -38,6 +38,6 @@ file_put_contents($pidPath.DIRECTORY_SEPARATOR.$roomId , $pid);
 while(true){
     $recorder->run($roomId);
     $logger->debug('finish a circle');
-    sleep(60);
+    sleep(30);
 }
 

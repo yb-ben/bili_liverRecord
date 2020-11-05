@@ -157,8 +157,7 @@ class LiverRecorder
         $body = $response->getBody();
 
         while ((!$body->eof())) {
-            $data = $body->read($this->writeBuffer);
-            $stream->write($data);
+            $stream->write( $body->read($this->writeBuffer));
             usleep(100);
         }
         $body->close();
