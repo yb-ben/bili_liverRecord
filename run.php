@@ -26,7 +26,14 @@ $logger->pushHandler($stream);
 $recorder = new LiverRecorder();
 $recorder->setLogger($logger);
 
-$logger->info('My pid:'.getmypid());
+$pid = getmypid();
+$logger->info('My pid:'.$pid);
+
+$pidPath = ROOT_PATH . 'pid';
+if (!file_exists($pidPath)) {
+    mkdir($pidPath);
+}
+file_put_contents($pidPath.DIRECTORY_SEPARATOR.$roomId , $pid);
 
 while(true){
     $recorder->run($roomId);
