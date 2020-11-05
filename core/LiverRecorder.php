@@ -153,15 +153,17 @@ class LiverRecorder
     public function record(ResponseInterface $response){
         $f = fopen($this->getSaveFileName(),'w+');
 
-        $stream = Utils::streamFor($f);
+        //$stream = Utils::streamFor($f);
         $body = $response->getBody();
 
         while ((!$body->eof())) {
-            $stream->write( $body->read($this->writeBuffer));
-            usleep(100);
+            //$stream->write( $body->read($this->writeBuffer));
+            //usleep(100);
+            fwrite($f, $body->read($this->writeBuffer));
         }
         $body->close();
-        $stream->close();
+        //$stream->close();
+        fclose($f);
         $this->fireLiveFinished();
     }
 
