@@ -171,7 +171,7 @@ class LiverRecorder
 
         $ret = $this->setRoomId($id)->getRoomInfo();
 
-        $this->getLogger()->debug('[RoomInfo]',$ret);
+//        $this->getLogger()->debug('[RoomInfo]',$ret);
 
         if($ret['code'] !== 0){
              $this->fireErrorResponse($ret);
