@@ -115,6 +115,38 @@ class LiverRecorder
 
 
 
+    public function getStreamDataV2($url){
+        $host  =  parse_url($url,PHP_URL_HOST);
+        $headers = [
+            'Accept' => '*/*',
+            'Accept-Encoding' => 'gzip, deflate',
+            'Host' => $host,
+            'Origin' => 'https://live.bilibili.com',
+            'Reference' => 'https://live.bilibili.com',
+            'User-Agent' => 'BiliRecorder'
+        ];
+        $header = '';
+        foreach ($headers as $k=>$v) {
+            $header .= "{$k}:{$v}\r\n";
+        }
+        $context = stream_context_create([
+            'http' =>[
+                'method' => 'GET',
+                'header' => $header
+            ],
+            'ssl' => [
+                'verify_peer' => false
+            ]
+        ]);
+        $fp = fopen($url, 'rb',false,$context);
+        $wfp= fopen($this->getSaveFileName(), 'wb+');
+
+        while (!feof($fp)) {
+            fwrite($wfp, fread($fp, $this->writeBuffer));
+        }
+        fclose($fp);
+        fclose($wfp);
+    }
 
     public function getStreamData($url){
 
@@ -189,19 +221,8 @@ class LiverRecorder
             $this->fireErrorResponse($ret);
             return $ret;
         }
-        foreach ($ret['data']['durl'] as $item) {
-            try{
-                $ret = $this->getStreamData($item['url']);
-                $this->record($ret);
-            }catch (RequestException $exception){
-                $ret = $exception->getResponse();
-                $this->logger->debug('[http error]',
-                    [
-                        'code'=>$ret->getStatusCode(),
-                        'headers' => $ret->getHeaders(),
-                    ]);
-            }
-        }
+
+        $this->getStreamDataV2($ret['data']['durl'][0]['url']);
         return true;
     }
 
