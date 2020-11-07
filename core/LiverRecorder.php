@@ -151,14 +151,12 @@ class LiverRecorder
      * @param ResponseInterface $response
      */
     public function record(ResponseInterface $response){
-        $f = fopen($this->getSaveFileName(),'w+');
+        $f = fopen($this->getSaveFileName(),'wb+');
 
         //$stream = Utils::streamFor($f);
         $body = $response->getBody();
 
         while ((!$body->eof())) {
-            //$stream->write( $body->read($this->writeBuffer));
-            //usleep(100);
             fwrite($f, $body->read($this->writeBuffer));
         }
         $body->close();
@@ -172,7 +170,6 @@ class LiverRecorder
 
         $ret = $this->setRoomId($id)->getRoomInfo();
 
-//        $this->getLogger()->debug('[RoomInfo]',$ret);
 
         if($ret['code'] !== 0){
              $this->fireErrorResponse($ret);
@@ -195,12 +192,7 @@ class LiverRecorder
         foreach ($ret['data']['durl'] as $item) {
             try{
                 $ret = $this->getStreamData($item['url']);
-                $this->getLogger()->debug(
-                    '[live url]',
-                    ['headers' => $ret->getHeaders(),]
-                );
                 $this->record($ret);
-
             }catch (RequestException $exception){
                 $ret = $exception->getResponse();
                 $this->logger->debug('[http error]',

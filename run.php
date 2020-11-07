@@ -2,7 +2,6 @@
 use core\LiverRecorder;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
-use Swoole\Process;
 
 require './vendor/autoload.php';
 define('ROOT_PATH', __DIR__ . DIRECTORY_SEPARATOR);
@@ -11,7 +10,7 @@ error_reporting(E_ALL);
 date_default_timezone_set('Asia/Shanghai');
 
 isset($argv[1]) || die('please input the room id');
-isset($argv[2]) && $argv[2] === '--daemon' && Process::daemon(true);
+//isset($argv[2]) && $argv[2] === '--daemon' && Swoole\Process::daemon(true);
 $roomId = $argv[1];
 
 
