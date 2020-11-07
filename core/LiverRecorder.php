@@ -187,9 +187,8 @@ class LiverRecorder
 
         //$stream = Utils::streamFor($f);
         $body = $response->getBody();
-
         while ((!$body->eof())) {
-            fwrite($f, $body->read($this->writeBuffer));
+             fwrite($f, $body->read($this->writeBuffer));
         }
         $body->close();
         //$stream->close();

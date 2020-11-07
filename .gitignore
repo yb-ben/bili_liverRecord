@@ -6,3 +6,4 @@ client_log
 *.log
 /logs
 nohup.out
+/pid
