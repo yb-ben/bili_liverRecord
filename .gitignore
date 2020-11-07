@@ -5,3 +5,4 @@ client_log
 /storage
 *.log
 /logs
+nohup.out
